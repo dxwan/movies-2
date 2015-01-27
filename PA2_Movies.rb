@@ -30,14 +30,16 @@ class MovieTest
 	def initialize(testdataarray)
 		@data = testdataarray
 	end
+	attr_reader :data
+	
 	def mean()
 		totalerror=0
 		numpred=0
-		@data.each do |user, movie, score, pscore|
-			totalerror += (score - pscore).abs
+		@data.each do |data|
+			totalerror += (data.score - data.pscore).abs
 			numpred += 1
 		end
-		avgerror = (totalerror.to_f/numpred.to_f).to_f
+		avgerror = (totalerror.to_f/numpred.to_f)
 		return avgerror
 	end
 	
@@ -45,22 +47,22 @@ class MovieTest
 		meanerror = mean()
 		totalsquare = 0.0
 		totalnum = 0.0
-		@data.each do|user, movie, score, pscore|
-			totalsquare += (pscore - meanerror) * (pscore - meanerror)
+		@data.each do |data|
+			totalsquare += (data.pscore - meanerror) * (data.pscore - meanerror)
 			totalnum += 1.0
 		end
-		std = sqrt(totalsquare/totalnum).to_f
+		std = Math.sqrt(totalsquare.to_f/totalnum.to_f)
 		return std
 	end
 	
 	def rms()
 		totalsquare = 0.0
 		totalnum = 0.0
-		@data.each do |user, movie, score, pscore|
-			totalerror += (score - pscore) * (score-pscore)
+		@data.each do |data|
+			totalsquare += (data.score - data.pscore) * (data.score-data.pscore)
 			totalnum += 1
 		end
-		rms = sqrt(totalerror.to_f/totalnum.to_f)
+		rms = Math.sqrt(totalsquare.to_f/totalnum.to_f)
 		return rms
 	end 
 	
@@ -147,7 +149,11 @@ class MovieData
 			movie = @testarray[i].movieid
 			score = @testarray[i].score
 			prediction = predict(user, movie)
+			
 			testdata.push(TestData.new(user, movie, score, prediction))
+		end
+		testdata.each do |data|
+			puts "creation : #{data.userid}, #{data.movieid}, #{data.score}, #{data.pscore}"
 		end
 		movietestobject = MovieTest.new(testdata)
 		return movietestobject
@@ -263,7 +269,10 @@ data = MovieData.new(filename, testname)
 
 
 
-testobject = data.run_test(nil)
+testobject = data.run_test(10)
+
+
 std = testobject.stddev()
 rms = testobject.rms()
-puts "STD: #{std} RMS: #{rms}"
+puts "STD: #{std}"
+puts "RMS: #{rms}"
